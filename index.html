@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://pixijs.download/release/pixi.js"></script>
+    <script>
+      let app;
+      let player;
+      let playerSheet = {};
+      let sky;
+      let sea;
+      let clouds;
+      let grass;
+      let tree;
+      let bgx = 0;
+
+      window.onload = function () {
+        app = new PIXI.Application({
+          width: 800,
+          height: 450,
+          backgroundColor: 0xe1f9e9,
+        });
+        document.body.appendChild(app.view);
+
+        app.loader.baseUrl = "images/";
+        app.loader
+          .add("tileset", "tileset.png")
+          .add("clouds", "clouds.png")
+          .add("sea", "sea.png")
+          .add("sky", "sky.png")
+          .add("player", "adventurer.png");
+
+        app.loader.load(function () {
+          createBg();
+
+          createPlayerSheet();
+          createPlayer();
+
+          app.ticker.add(gameLoop);
+        });
+      };
+
+      function createBg() {
+        sky = new PIXI.TilingSprite(
+          app.loader.resources["sky"].texture,
+          app.view.width,
+          304
+        );
+        sea = new PIXI.TilingSprite(
+          app.loader.resources["sea"].texture,
+          app.view.width,
+          96
+        );
+        sea.position.y = app.view.height - 96;
+
+        clouds = new PIXI.TilingSprite(
+          app.loader.resources["clouds"].texture,
+          app.view.width,
+          236
+        );
+        clouds.position.y = app.view.height - (236 + 96);
+
+        const grassSheet = new PIXI.Texture(
+          app.loader.resources["tileset"].texture,
+          new PIXI.Rectangle(192, 186, 48, 38)
+        );
+
+        const treeSheet = new PIXI.Texture(
+          app.loader.resources["tileset"].texture,
+          new PIXI.Rectangle(191, 46, 123, 114)
+        );
+
+        tree = new PIXI.TilingSprite(treeSheet, 123, 114);
+        tree.position.y = app.view.height - (114 + 33);
+        tree.position.x = 500;
+
+        grass = new PIXI.TilingSprite(grassSheet, app.view.width, 38);
+        grass.position.y = app.view.height - 38;
+
+        app.stage.addChild(sky, clouds, sea, grass);
+      }
+
+      function createPlayerSheet() {
+        const sheet = new PIXI.BaseTexture.from(
+          app.loader.resources["player"].url
+        );
+        const width = 50;
+        const height = 37;
+
+        playerSheet["run"] = [
+          new PIXI.Texture(
+            sheet,
+            new PIXI.Rectangle(1 * width, 1 * height, width, height)
+          ),
+          new PIXI.Texture(
+            sheet,
+            new PIXI.Rectangle(2 * width, 1 * height, width, height)
+          ),
+          new PIXI.Texture(
+            sheet,
+            new PIXI.Rectangle(3 * width, 1 * height, width, height)
+          ),
+          new PIXI.Texture(
+            sheet,
+            new PIXI.Rectangle(4 * width, 1 * height, width, height)
+          ),
+          new PIXI.Texture(
+            sheet,
+            new PIXI.Rectangle(5 * width, 1 * height, width, height)
+          ),
+          new PIXI.Texture(
+            sheet,
+            new PIXI.Rectangle(6 * width, 1 * height, width, height)
+          ),
+        ];
+      }
+
+      function createPlayer() {
+        player = new PIXI.AnimatedSprite(playerSheet.run);
+        player.animationSpeed = 0.15;
+        player.loop = true;
+        player.x = app.view.width / 2;
+        player.y = app.view.height - 76;
+        player.scale.x = player.scale.y = 2.5;
+        player.anchor.set(0.5);
+        player.play();
+
+        app.stage.addChild(player);
+      }
+
+      function gameLoop(delta) {
+        bgx = bgx + 1.5;
+        clouds.tilePosition.x = -bgx / 8;
+        sea.tilePosition.x = -bgx / 6;
+        grass.tilePosition.x = -bgx;
+      }
+    </script>
+  </body>
+</html>
